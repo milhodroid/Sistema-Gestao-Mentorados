@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from django.contrib.auth.models import User
 from django.contrib.messages import constants
 from django.contrib import messages
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate
 from django.contrib import auth
 
 # Create your views here.
@@ -49,8 +49,7 @@ def login(request):
 
         if user:
             auth.login(request, user)
-            #return redirect('/mentorados/')
-            return HttpResponse('TODO: Implement mentorados app')
+            return redirect('/mentorados/')
         
         messages.add_message(request, constants.ERROR, 'Usuário informado não possui cadastro...')
         return redirect('login')
