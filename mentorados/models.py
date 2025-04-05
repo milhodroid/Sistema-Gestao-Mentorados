@@ -12,9 +12,9 @@ class Navigators(models.Model):
 
 class Mentorados(models.Model):
     estagio_choices = (
-        ('E1', '10-100k'),
-        ('E2', '100K-500K'),
-        ('E3', '500K-1kk')
+        ('E1', '10-100'),
+        ('E2', '100-500'),
+        ('E3', '500-1000')
     )
     nome = models.CharField(max_length=255)
     foto = models.ImageField(upload_to='fotos', null=True, blank=True)
