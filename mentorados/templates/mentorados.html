@@ -150,10 +150,10 @@
         new Chart(ctx, {
             type: 'pie',
             data: {
-                labels: {{estagios_flat|safe}},
+                labels: {{ estagios_flat|safe }},
                 datasets: [{
                     label: '',
-                    data: {{qtd_estagios|safe}},
+                    data: {{ qtd_estagios|safe }},
                     borderWidth: 1
                 }]
             },
