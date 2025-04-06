@@ -12,13 +12,23 @@ def mentorados(request):
     if request.method == 'GET':
         navigators = Navigators.objects.filter(user=request.user)
         mentorados = Mentorados.objects.filter(user=request.user)
+
+        estagios_flat = [i[1] for i in Mentorados.estagio_choices] # using list comprehension
+
+        qtd_estagios = []
+        for i, j in Mentorados.estagio_choices:
+            qtd = Mentorados.objects.filter(estagio=i).filter(user=request.user).count()
+            qtd_estagios.append(qtd)
+
         return render(
             request,
             'mentorados.html',
             {
                 'estagios': Mentorados.estagio_choices,
                 'navigators': navigators,
-                'mentorados': mentorados
+                'mentorados': mentorados,
+                'estagios_flat': estagios_flat,
+                'qtd_estagios': qtd_estagios
             }
         )
     elif request.method == 'POST':
