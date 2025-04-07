@@ -1,16 +1,16 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, Http404
+from django.views.decorators.csrf import csrf_exempt
 from .auth import valida_token
 from .models import Mentorados, Navigators, DisponibilidadeHorarios, Reuniao, Tarefa, Upload
 from django.contrib import messages
 from django.contrib.messages import constants
+from django.contrib.auth.decorators import login_required
 from datetime import datetime, timedelta
 
 # Create your views here.
+@login_required
 def mentorados(request):
-    if not request.user.is_authenticated:
-        return redirect('login')
-    
     if request.method == 'GET':
         navigators = Navigators.objects.filter(user=request.user)
         mentorados = Mentorados.objects.filter(user=request.user)
@@ -199,3 +199,29 @@ def upload(request, id):
     upload.save()
 
     return redirect(f'/mentorados/tarefa/{mentorado.id}')
+
+
+def tarefa_mentorado(request):
+    mentorado = valida_token(request.COOKIES.get('auth_token'))
+    if not mentorado:
+        return redirect('auth_mentorado')
+    
+    if request.method == 'GET':
+        videos = Upload.objects.filter(mentorado=mentorado)
+        tarefas = Tarefa.objects.filter(mentorado=mentorado)
+        return render(request, 'tarefa_mentorado.html', {'mentorado': mentorado, 'videos': videos, 'tarefas': tarefas})
+
+
+@csrf_exempt
+def tarefa_alterar(request, id):
+    mentorado = valida_token(request.COOKIES.get('auth_token'))
+    if not mentorado:
+        return redirect('auth_mentorado')
+
+    tarefa = Tarefa.objects.get(id=id)
+    if mentorado != tarefa.mentorado:
+        raise Http404()
+    tarefa.realizada = not tarefa.realizada
+    tarefa.save()
+
+    return HttpResponse('teste')
