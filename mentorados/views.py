@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, Http404
 from .auth import valida_token
-from .models import Mentorados, Navigators, DisponibilidadeHorarios, Reuniao
+from .models import Mentorados, Navigators, DisponibilidadeHorarios, Reuniao, Tarefa
 from django.contrib import messages
 from django.contrib.messages import constants
 from datetime import datetime, timedelta
@@ -52,6 +52,7 @@ def mentorados(request):
         
         return redirect('mentorados')
 
+
 def reunioes(request):
     if request.method == 'GET':
         reunioes = Reuniao.objects.filter(data__mentor=request.user)
@@ -78,6 +79,7 @@ def reunioes(request):
         messages.add_message(request, constants.SUCCESS, 'Horário disponibilizado com sucesso')
         return redirect('reunioes')
 
+
 def auth(request):
     if request.method == 'GET':
         print(request.COOKIES)
@@ -93,6 +95,7 @@ def auth(request):
         response.set_cookie('auth_token', token, max_age=3600)
 
         return response
+
 
 def escolher_dia(request):
     if not valida_token(request.COOKIES.get('auth_token')):
@@ -115,6 +118,7 @@ def escolher_dia(request):
         #TODO: tornar o mês e o dia da semana dinâmicos
 
         return render(request, 'escolher_dia.html', {'horarios': list(set(datas))})
+
 
 def agendar_reuniao(request):
     if not valida_token(request.COOKIES.get('auth_token')):
@@ -158,3 +162,24 @@ def agendar_reuniao(request):
 
         messages.add_message(request, constants.SUCCESS, 'Reunião agendada com sucesso.')
         return redirect('escolher_dia')
+
+
+def tarefa(request, id):
+    mentorado = Mentorados.objects.get(id=id)
+
+    if mentorado.user != request.user:
+        raise Http404()
+    
+    if request.method == 'GET':
+        tarefas = Tarefa.objects.filter(mentorado=mentorado)
+        return render (request, 'tarefa.html', {'mentorado':mentorado, 'tarefas':tarefas})
+    else:
+        tarefa = request.POST.get('tarefa')
+        tarefa = Tarefa(
+            mentorado=mentorado,
+            tarefa=tarefa
+        )
+        tarefa.save()
+        return redirect(f'/mentorados/tarefa/{mentorado.id}')
+
+    return HttpResponse(mentorado)

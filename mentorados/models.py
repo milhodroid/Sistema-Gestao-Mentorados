@@ -12,6 +12,7 @@ class Navigators(models.Model):
     def __str__(self):
         return self.nome
 
+
 class Mentorados(models.Model):
     estagio_choices = (
         ('E1', '10-100'),
@@ -40,6 +41,7 @@ class Mentorados(models.Model):
     def __str__(self):
         return self.nome
 
+
 class DisponibilidadeHorarios(models.Model):
     data_inicial = models.DateTimeField(null=True, blank=True)
     mentor = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -48,7 +50,7 @@ class DisponibilidadeHorarios(models.Model):
     @property
     def data_final(self):
         return self.data_inicial + timedelta(minutes=50)
-        
+
 
 class Reuniao(models.Model):
     tag_choices = (
@@ -61,3 +63,14 @@ class Reuniao(models.Model):
     mentorado = models.ForeignKey(Mentorados, on_delete=models.CASCADE)
     tag = models.CharField(max_length=2, choices=tag_choices)
     descricao = models.TextField()
+
+
+class Tarefa(models.Model):
+    mentorado = models.ForeignKey(Mentorados, on_delete=models.DO_NOTHING)
+    tarefa = models.CharField(max_length=255)
+    realizada = models.BooleanField(default=False)
+
+
+class Upload(models.Model):
+    mentorado = models.ForeignKey(Mentorados, on_delete=models.DO_NOTHING)
+    video = models.FileField(upload_to='video')
